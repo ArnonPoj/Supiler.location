@@ -1,5 +1,0 @@
-map-app/
-├── app.py
-├── requirements.txt
-└── templates/
-    └── map.html
