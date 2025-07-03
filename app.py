@@ -1,21 +1,16 @@
 from flask import Flask, render_template
 import folium
-import os
 
 app = Flask(__name__)
 
-def create_map():
+@app.route('/')
+def index():
+    # ตำแหน่งหมุด
     location = [13.7563, 100.5018]  # กรุงเทพ
     m = folium.Map(location=location, zoom_start=12)
     folium.Marker(location, tooltip='กรุงเทพ').add_to(m)
     m.save('templates/map.html')
 
-# สร้างแผนที่ล่วงหน้าครั้งเดียว
-if not os.path.exists('templates/map.html'):
-    create_map()
-
-@app.route('/', methods=['GET'])
-def index():
     return render_template('map.html')
 
 if __name__ == '__main__':
