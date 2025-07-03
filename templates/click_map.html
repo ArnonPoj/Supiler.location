@@ -18,25 +18,33 @@
   <div id="map"></div>
 
   <script>
+    // เริ่มต้นที่กรุงเทพ
     var map = L.map('map').setView([13.7563, 100.5018], 12);
 
+    // เพิ่ม tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    var marker;
+    var marker; // ตัวแปรสำหรับเก็บหมุด
 
+    // เมื่อคลิกบนแผนที่
     map.on('click', function(e) {
       var lat = e.latlng.lat.toFixed(5);
       var lng = e.latlng.lng.toFixed(5);
 
+      // ถ้ามีหมุดอยู่แล้ว ลบก่อน
       if (marker) {
         map.removeLayer(marker);
       }
 
+      // เพิ่มหมุดใหม่
       marker = L.marker([lat, lng]).addTo(map)
-        .bindPopup("Lat: " + lat + "<br>Lng: " + lng)
+        .bindPopup("คุณเลือกตำแหน่งนี้:<br>Lat: " + lat + "<br>Lng: " + lng)
         .openPopup();
+
+      // (Optional) ส่งค่าพิกัดกลับเซิร์ฟเวอร์ด้วย fetch/ajax ได้
+      console.log("Selected location:", lat, lng);
     });
   </script>
 </body>
