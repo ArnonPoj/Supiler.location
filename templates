@@ -1,5 +1,6 @@
-Supiler.location/
-├── app.py
-├── templates/   ✅
+/(รูทของ repo)
+├── app.py            ✅
+├── requirements.txt  ✅
+├── templates/
 │   └── map.html
-└── requirements.txt
+└── (ไม่มี Supiler.location แล้ว)
