@@ -1,51 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>คลิกเพื่อปักหมุด</title>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- Leaflet CSS & JS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <style>
-    #map { height: 90vh; width: 100%; }
-  </style>
+    <meta charset="utf-8" />
+    <title>Interactive Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <style>
+        #map { height: 90vh; width: 100%; }
+    </style>
 </head>
 <body>
-  <h2>คลิกที่แผนที่เพื่อปักหมุด</h2>
-  <div id="map"></div>
+    <h2>คลิกบนแผนที่เพื่อปักหมุด</h2>
+    <div id="map"></div>
 
-  <script>
-    // เริ่มต้นที่กรุงเทพ
-    var map = L.map('map').setView([13.7563, 100.5018], 12);
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+        // สร้างแผนที่ที่กรุงเทพ
+        var map = L.map('map').setView([13.7563, 100.5018], 12);
 
-    // เพิ่ม tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+        // เพิ่ม tile layer (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
 
-    var marker; // ตัวแปรสำหรับเก็บหมุด
-
-    // เมื่อคลิกบนแผนที่
-    map.on('click', function(e) {
-      var lat = e.latlng.lat.toFixed(5);
-      var lng = e.latlng.lng.toFixed(5);
-
-      // ถ้ามีหมุดอยู่แล้ว ลบก่อน
-      if (marker) {
-        map.removeLayer(marker);
-      }
-
-      // เพิ่มหมุดใหม่
-      marker = L.marker([lat, lng]).addTo(map)
-        .bindPopup("คุณเลือกตำแหน่งนี้:<br>Lat: " + lat + "<br>Lng: " + lng)
-        .openPopup();
-
-      // (Optional) ส่งค่าพิกัดกลับเซิร์ฟเวอร์ด้วย fetch/ajax ได้
-      console.log("Selected location:", lat, lng);
-    });
-  </script>
+        // เมื่อคลิกที่แผนที่ → ปักหมุด
+        map.on('click', function(e) {
+            var lat = e.latlng.lat.toFixed(5);
+            var lng = e.latlng.lng.toFixed(5);
+            L.marker([lat, lng]).addTo(map)
+                .bindPopup("คุณปักหมุดที่: " + lat + ", " + lng)
+                .openPopup();
+        });
+    </script>
 </body>
 </html>
