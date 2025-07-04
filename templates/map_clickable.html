@@ -2,82 +2,79 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Map + Supplier Form</title>
+    <title>Interactive Map with Marker Form</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
     <style>
-        #map { height: 60vh; width: 100%; margin-bottom: 1rem; }
-        form { max-width: 500px; margin: auto; }
-        label { display: block; margin-top: 10px; font-weight: bold; }
-        input, textarea {
-            width: 100%;
-            padding: 5px;
-            box-sizing: border-box;
+        #map { height: 90vh; width: 100%; }
+        .popup-form {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
-        .btn-submit {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #4CAF50;
+        .popup-form input {
+            width: 100%;
+            padding: 4px;
+            font-size: 14px;
+        }
+        .popup-form button {
+            padding: 4px;
+            background-color: green;
             color: white;
-            font-weight: bold;
             border: none;
             cursor: pointer;
-            width: 100%;
         }
     </style>
 </head>
 <body>
 
-    <h2 style="text-align: center;">ปักหมุด + กรอกข้อมูล Supplier</h2>
-    <div id="map"></div>
+<h2 style="text-align: center;">คลิกบนแผนที่เพื่อปักหมุดและกรอกข้อมูล Supplier</h2>
+<div id="map"></div>
 
-    <form method="POST" action="/submit">
-        <label>ชื่อ Supplier:</label>
-        <input type="text" name="name" required>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script>
+    const map = L.map('map').setView([13.7563, 100.5018], 12);
 
-        <label>ที่อยู่:</label>
-        <textarea name="address" rows="2"></textarea>
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
 
-        <label>ที่อยู่สำหรับใช้ปักหมุด (พิกัด lat,lng):</label>
-        <input type="text" name="latlng" id="latlng" readonly required>
+    map.on('click', function(e) {
+        const lat = e.latlng.lat.toFixed(5);
+        const lng = e.latlng.lng.toFixed(5);
 
-        <label>ชื่อผู้ติดต่อ:</label>
-        <input type="text" name="contact_person">
+        const popupContent = `
+            <div class="popup-form">
+                <label>ชื่อบริษัท</label>
+                <input type="text" id="name-${lat}-${lng}" placeholder="เช่น บจก.ตัวอย่าง">
+                <label>ผู้ติดต่อ</label>
+                <input type="text" id="contact-${lat}-${lng}" placeholder="ชื่อผู้ติดต่อ">
+                <label>เบอร์โทร</label>
+                <input type="text" id="phone-${lat}-${lng}" placeholder="เบอร์โทร">
+                <button onclick="submitSupplier('${lat}', '${lng}')">บันทึก</button>
+            </div>
+        `;
 
-        <label>เบอร์โทร:</label>
-        <input type="text" name="phone">
+        const marker = L.marker([lat, lng]).addTo(map)
+            .bindPopup(popupContent)
+            .openPopup();
+    });
 
-        <button class="btn-submit" type="submit">บันทึก</button>
-    </form>
+    function submitSupplier(lat, lng) {
+        const name = document.getElementById(`name-${lat}-${lng}`).value;
+        const contact = document.getElementById(`contact-${lat}-${lng}`).value;
+        const phone = document.getElementById(`phone-${lat}-${lng}`).value;
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script>
-        const map = L.map('map').setView([13.7563, 100.5018], 12);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
-
-        let marker;
-
-        map.on('click', function(e) {
-            const lat = e.latlng.lat.toFixed(5);
-            const lng = e.latlng.lng.toFixed(5);
-
-            // ถ้ามีหมุดเดิม → ลบทิ้งก่อน
-            if (marker) {
-                map.removeLayer(marker);
-            }
-
-            marker = L.marker([lat, lng]).addTo(map)
-                .bindPopup("คุณเลือกพิกัดนี้:<br>" + lat + ", " + lng)
-                .openPopup();
-
-            // ใส่พิกัดลงในช่อง input
-            document.getElementById("latlng").value = `${lat}, ${lng}`;
+        console.log("📍 ข้อมูลหมุดใหม่:", {
+            lat, lng, name, contact, phone
         });
-    </script>
+
+        alert(`✅ บันทึก Supplier แล้ว:\nชื่อ: ${name}\nผู้ติดต่อ: ${contact}\nเบอร์: ${phone}`);
+
+        // เพิ่มที่นี่ถ้าต้องการส่งไปเซิร์ฟเวอร์ (AJAX/Fetch)
+    }
+</script>
+
 </body>
 </html>
