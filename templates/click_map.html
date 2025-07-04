@@ -4,7 +4,6 @@
     <meta charset="utf-8" />
     <title>Interactive Map</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
     <style>
         #map { height: 90vh; width: 100%; }
@@ -14,24 +13,20 @@
     <h2>คลิกบนแผนที่เพื่อปักหมุด</h2>
     <div id="map"></div>
 
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
     <script>
-        // สร้างแผนที่ที่กรุงเทพ
         var map = L.map('map').setView([13.7563, 100.5018], 12);
 
-        // เพิ่ม tile layer (OpenStreetMap)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // เมื่อคลิกที่แผนที่ → ปักหมุด
         map.on('click', function(e) {
             var lat = e.latlng.lat.toFixed(5);
             var lng = e.latlng.lng.toFixed(5);
             L.marker([lat, lng]).addTo(map)
-                .bindPopup("คุณปักหมุดที่: " + lat + ", " + lng)
+                .bindPopup("ปักหมุดที่: " + lat + ", " + lng)
                 .openPopup();
         });
     </script>
