@@ -2,33 +2,40 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Interactive Map with Marker Form</title>
+    <title>Map with Editable Markers</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
     <style>
         #map { height: 90vh; width: 100%; }
+
         .popup-form {
+            width: 250px;
             display: flex;
             flex-direction: column;
-            gap: 5px;
-        }
-        .popup-form input {
-            width: 100%;
-            padding: 4px;
+            gap: 6px;
             font-size: 14px;
         }
-        .popup-form button {
+
+        .popup-form input {
             padding: 4px;
-            background-color: green;
+        }
+
+        .popup-form button {
+            padding: 6px;
+            background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
+        }
+
+        .popup-form .delete-btn {
+            background-color: #d9534f;
         }
     </style>
 </head>
 <body>
 
-<h2 style="text-align: center;">คลิกบนแผนที่เพื่อปักหมุดและกรอกข้อมูล Supplier</h2>
+<h2 style="text-align: center;">คลิกแผนที่ → ปักหมุด → กรอกข้อมูล → ลบ/แก้ไขได้</h2>
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
@@ -40,39 +47,63 @@
         attribution: '© OpenStreetMap'
     }).addTo(map);
 
+    let markerId = 0; // ให้แต่ละหมุดมี ID ไม่ซ้ำ
+
     map.on('click', function(e) {
         const lat = e.latlng.lat.toFixed(5);
         const lng = e.latlng.lng.toFixed(5);
+        const id = `marker-${markerId++}`;
 
         const popupContent = `
-            <div class="popup-form">
+            <div class="popup-form" id="form-${id}">
                 <label>ชื่อบริษัท</label>
-                <input type="text" id="name-${lat}-${lng}" placeholder="เช่น บจก.ตัวอย่าง">
+                <input type="text" id="name-${id}" placeholder="เช่น บจก.ตัวอย่าง">
                 <label>ผู้ติดต่อ</label>
-                <input type="text" id="contact-${lat}-${lng}" placeholder="ชื่อผู้ติดต่อ">
+                <input type="text" id="contact-${id}" placeholder="ชื่อผู้ติดต่อ">
                 <label>เบอร์โทร</label>
-                <input type="text" id="phone-${lat}-${lng}" placeholder="เบอร์โทร">
-                <button onclick="submitSupplier('${lat}', '${lng}')">บันทึก</button>
+                <input type="text" id="phone-${id}" placeholder="เบอร์โทร">
+                <button onclick="submitSupplier('${id}', '${lat}', '${lng}')">บันทึก</button>
+                <button class="delete-btn" onclick="deleteMarker('${id}')">ลบหมุดนี้</button>
             </div>
         `;
 
-        const marker = L.marker([lat, lng]).addTo(map)
+        const marker = L.marker([lat, lng], { draggable: true }).addTo(map)
             .bindPopup(popupContent)
             .openPopup();
+
+        marker._id = id; // ผูก ID กับ marker
+        markers[id] = marker;
     });
 
-    function submitSupplier(lat, lng) {
-        const name = document.getElementById(`name-${lat}-${lng}`).value;
-        const contact = document.getElementById(`contact-${lat}-${lng}`).value;
-        const phone = document.getElementById(`phone-${lat}-${lng}`).value;
+    const markers = {}; // เก็บหมุดทั้งหมด
 
-        console.log("📍 ข้อมูลหมุดใหม่:", {
-            lat, lng, name, contact, phone
-        });
+    function submitSupplier(id, lat, lng) {
+        const name = document.getElementById(`name-${id}`).value;
+        const contact = document.getElementById(`contact-${id}`).value;
+        const phone = document.getElementById(`phone-${id}`).value;
 
-        alert(`✅ บันทึก Supplier แล้ว:\nชื่อ: ${name}\nผู้ติดต่อ: ${contact}\nเบอร์: ${phone}`);
+        if (!name) {
+            alert("⚠️ กรุณากรอกชื่อบริษัท");
+            return;
+        }
 
-        // เพิ่มที่นี่ถ้าต้องการส่งไปเซิร์ฟเวอร์ (AJAX/Fetch)
+        const content = `
+            <strong>📍 ${name}</strong><br>
+            ผู้ติดต่อ: ${contact || '-'}<br>
+            เบอร์โทร: ${phone || '-'}<br>
+            พิกัด: ${lat}, ${lng}<br>
+            <button class="delete-btn" onclick="deleteMarker('${id}')">ลบหมุดนี้</button>
+        `;
+
+        // อัปเดต popup เป็นข้อมูล
+        markers[id].setPopupContent(content).openPopup();
+    }
+
+    function deleteMarker(id) {
+        if (markers[id]) {
+            map.removeLayer(markers[id]);
+            delete markers[id];
+        }
     }
 </script>
 
