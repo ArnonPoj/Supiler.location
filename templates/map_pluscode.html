@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Plus Code → Marker</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <style>
+    #map { height: 80vh; }
+    input, button { padding: 8px; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<h3>🔎 ป้อน Plus Code แล้วปักหมุด</h3>
+<input type="text" id="pluscode" placeholder="เช่น 787C+GX5">
+<button onclick="locatePlusCode()">ค้นหาและปักหมุด</button>
+
+<div id="map"></div>
+
+<!-- Leaflet Map JS -->
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+<!-- ไลบรารี openlocationcode.js -->
+<script src="https://cdn.jsdelivr.net/npm/open-location-code/openlocationcode.min.js"></script>
+
+<script>
+  const map = L.map('map').setView([13.7563, 100.5018], 10);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+
+  function locatePlusCode() {
+    const input = document.getElementById("pluscode").value.trim();
+    if (!input) return alert("กรุณากรอก Plus Code");
+
+    try {
+      const code = OpenLocationCode.decode(input);
+      const lat = code.latitudeCenter;
+      const lng = code.longitudeCenter;
+
+      L.marker([lat, lng]).addTo(map)
+        .bindPopup(`พิกัดจาก Plus Code:<br>${lat}, ${lng}`)
+        .openPopup();
+
+      map.setView([lat, lng], 16);
+    } catch (e) {
+      alert("Plus Code ไม่ถูกต้องหรือไม่สามารถแปลงได้");
+    }
+  }
+</script>
+
+</body>
+</html>
