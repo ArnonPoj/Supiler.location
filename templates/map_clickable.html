@@ -2,17 +2,55 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Interactive Map with Removable Markers</title>
+    <title>Map + Supplier Form</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
     <style>
-        #map { height: 90vh; width: 100%; }
+        #map { height: 60vh; width: 100%; margin-bottom: 1rem; }
+        form { max-width: 500px; margin: auto; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input, textarea {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        .btn-submit {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
-    <h2>คลิกบนแผนที่เพื่อปักหมุด | คลิกที่หมุดเพื่อลบ</h2>
+
+    <h2 style="text-align: center;">ปักหมุด + กรอกข้อมูล Supplier</h2>
     <div id="map"></div>
 
+    <form method="POST" action="/submit">
+        <label>ชื่อ Supplier:</label>
+        <input type="text" name="name" required>
+
+        <label>ที่อยู่:</label>
+        <textarea name="address" rows="2"></textarea>
+
+        <label>ที่อยู่สำหรับใช้ปักหมุด (พิกัด lat,lng):</label>
+        <input type="text" name="latlng" id="latlng" readonly required>
+
+        <label>ชื่อผู้ติดต่อ:</label>
+        <input type="text" name="contact_person">
+
+        <label>เบอร์โทร:</label>
+        <input type="text" name="phone">
+
+        <button class="btn-submit" type="submit">บันทึก</button>
+    </form>
+
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
     <script>
         const map = L.map('map').setView([13.7563, 100.5018], 12);
@@ -22,19 +60,23 @@
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // ⬇️ ฟังก์ชันเพิ่มหมุด + ให้ลบได้
+        let marker;
+
         map.on('click', function(e) {
             const lat = e.latlng.lat.toFixed(5);
             const lng = e.latlng.lng.toFixed(5);
 
-            const marker = L.marker([lat, lng]).addTo(map)
-                .bindPopup(`พิกัด: ${lat}, ${lng}<br><small>คลิกหมุดเพื่อลบ</small>`)
+            // ถ้ามีหมุดเดิม → ลบทิ้งก่อน
+            if (marker) {
+                map.removeLayer(marker);
+            }
+
+            marker = L.marker([lat, lng]).addTo(map)
+                .bindPopup("คุณเลือกพิกัดนี้:<br>" + lat + ", " + lng)
                 .openPopup();
 
-            // 📌 เพิ่ม event: คลิกที่หมุดแล้วลบ
-            marker.on('click', function() {
-                map.removeLayer(marker);
-            });
+            // ใส่พิกัดลงในช่อง input
+            document.getElementById("latlng").value = `${lat}, ${lng}`;
         });
     </script>
 </body>
